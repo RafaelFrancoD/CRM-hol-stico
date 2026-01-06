@@ -1,0 +1,7 @@
+{
+  "name": "Novo  Atualizado 1 CRM Holístico Mirelli Silva",
+  "description": "Uma plataforma completa para terapeutas holísticos gerenciarem pacientes, finanças e marketing com auxílio de IA.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
