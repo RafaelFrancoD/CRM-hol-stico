@@ -14,6 +14,9 @@ const multer = require('multer');
 const app = express();
 const PORT = process.env.PORT || 4000;
 
+// Trust proxy (necessário para Render, Heroku, etc)
+app.set('trust proxy', 1);
+
 // --- File Upload Configuration ---
 const uploadDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadDir)) {
