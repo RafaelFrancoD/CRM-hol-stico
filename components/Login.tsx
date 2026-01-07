@@ -40,13 +40,25 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
   };
 
   return (
-    <div className="min-h-screen w-full flex bg-slate-50">
-      {/* Left Side */}
+    <div className="min-h-screen w-full flex relative bg-slate-50">
+      {/* Background Image - Mobile */}
+      <div className="lg:hidden absolute inset-0 overflow-hidden">
+        <img
+          src="https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&q=75&w=800&fm=webp"
+          alt="Ambiente de Terapia Holística"
+          className="absolute inset-0 w-full h-full object-cover"
+          loading="eager"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-white/95 via-white/85 to-emerald-50/90 backdrop-blur-sm"></div>
+      </div>
+
+      {/* Left Side - Desktop */}
       <div className="hidden lg:flex w-1/2 relative overflow-hidden bg-slate-900">
-        <img 
-          src="https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&q=80" 
-          alt="Ambiente de Terapia Holística" 
+        <img
+          src="https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&q=75&w=1200&fm=webp"
+          alt="Ambiente de Terapia Holística"
           className="absolute inset-0 w-full h-full object-cover opacity-80"
+          loading="eager"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/90 via-emerald-900/40 to-transparent"></div>
         <div className="relative z-10 w-full h-full flex flex-col justify-end p-16 text-white">
@@ -59,9 +71,9 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
         </div>
       </div>
 
-      {/* Right Side */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-white/50 backdrop-blur-sm">
-        <div className="w-full max-w-md space-y-8">
+      {/* Right Side / Form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 relative z-10">
+        <div className="w-full max-w-md space-y-8 bg-white/95 lg:bg-transparent p-8 lg:p-0 rounded-2xl shadow-2xl lg:shadow-none backdrop-blur-md">
           <div className="text-center lg:text-left">
             <h2 className="text-3xl font-serif font-bold text-slate-800">
               {isRegisterMode ? 'Criar Conta' : 'Acesso'}

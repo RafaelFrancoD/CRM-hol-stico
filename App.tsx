@@ -1,19 +1,21 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, lazy, Suspense } from 'react';
 import { LayoutDashboard, Users, Kanban as KanbanIcon, Calendar, DollarSign, Bot, MessageSquare, Target, FileText, Menu, Eye, EyeOff, LogOut, ShieldCheck, ClipboardList, X } from 'lucide-react';
 import { View, Patient, Transaction, PatientStatus, Appointment } from './types';
 import { apiService } from './services/apiService'; // Alterado
 import { Login } from './components/Login';
-import { Dashboard } from './components/Dashboard';
-import { PatientList } from './components/PatientList';
-import { PatientModal } from './components/PatientModal';
-import { Kanban } from './components/Kanban';
-import { AIAssistant } from './components/AIAssistant';
-import { CalendarView } from './components/CalendarView';
-import { Financials } from './components/Financials';
-import { LeadFinder } from './components/LeadFinder';
-import { DocumentManager } from './components/DocumentManager';
-import { MassMessaging } from './components/MassMessaging';
-import { TemplateManager } from './components/TemplateManager';
+
+// Lazy loading dos componentes para melhor performance
+const Dashboard = lazy(() => import('./components/Dashboard').then(m => ({ default: m.Dashboard })));
+const PatientList = lazy(() => import('./components/PatientList').then(m => ({ default: m.PatientList })));
+const PatientModal = lazy(() => import('./components/PatientModal').then(m => ({ default: m.PatientModal })));
+const Kanban = lazy(() => import('./components/Kanban').then(m => ({ default: m.Kanban })));
+const AIAssistant = lazy(() => import('./components/AIAssistant').then(m => ({ default: m.AIAssistant })));
+const CalendarView = lazy(() => import('./components/CalendarView').then(m => ({ default: m.CalendarView })));
+const Financials = lazy(() => import('./components/Financials').then(m => ({ default: m.Financials })));
+const LeadFinder = lazy(() => import('./components/LeadFinder').then(m => ({ default: m.LeadFinder })));
+const DocumentManager = lazy(() => import('./components/DocumentManager').then(m => ({ default: m.DocumentManager })));
+const MassMessaging = lazy(() => import('./components/MassMessaging').then(m => ({ default: m.MassMessaging })));
+const TemplateManager = lazy(() => import('./components/TemplateManager').then(m => ({ default: m.TemplateManager })));
 
 const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -186,19 +188,25 @@ const App: React.FC = () => {
     if (isLoading && !patients.length) {
       return <div className="p-6 text-center">Carregando dados...</div>;
     }
-    switch (currentView) {
-      case View.DASHBOARD: return <Dashboard patients={patients} transactions={transactions} />;
-      case View.PATIENTS: return <PatientList patients={patients} onAdd={() => handleOpenModal()} onEdit={(p) => handleOpenModal(p)} onDelete={deletePatient} isPrivacyMode={isPrivacyMode} />;
-      case View.KANBAN: return <Kanban patients={patients} onUpdateStatus={updatePatientStatus} />;
-      case View.AI_ASSISTANT: return <AIAssistant patients={patients} />;
-      case View.CALENDAR: return <CalendarView />;
-      case View.FINANCIALS: return <Financials />;
-      case View.LEAD_FINDER: return <LeadFinder />;
-      case View.DOCUMENTS: return <DocumentManager />;
-      case View.MASS_MESSAGING: return <MassMessaging />;
-      case View.TEMPLATES: return <TemplateManager />;
-      default: return <Dashboard patients={patients} transactions={transactions} />;
-    }
+    return (
+      <Suspense fallback={<div className="p-6 text-center flex items-center justify-center min-h-[400px]"><div className="animate-pulse text-slate-600">Carregando...</div></div>}>
+        {(() => {
+          switch (currentView) {
+            case View.DASHBOARD: return <Dashboard patients={patients} transactions={transactions} />;
+            case View.PATIENTS: return <PatientList patients={patients} onAdd={() => handleOpenModal()} onEdit={(p) => handleOpenModal(p)} onDelete={deletePatient} isPrivacyMode={isPrivacyMode} />;
+            case View.KANBAN: return <Kanban patients={patients} onUpdateStatus={updatePatientStatus} />;
+            case View.AI_ASSISTANT: return <AIAssistant patients={patients} />;
+            case View.CALENDAR: return <CalendarView />;
+            case View.FINANCIALS: return <Financials />;
+            case View.LEAD_FINDER: return <LeadFinder />;
+            case View.DOCUMENTS: return <DocumentManager />;
+            case View.MASS_MESSAGING: return <MassMessaging />;
+            case View.TEMPLATES: return <TemplateManager />;
+            default: return <Dashboard patients={patients} transactions={transactions} />;
+          }
+        })()}
+      </Suspense>
+    );
   };
 
   return (
@@ -278,12 +286,16 @@ const App: React.FC = () => {
       </main>
 
       {/* Modals */}
-      <PatientModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        onSave={handleSavePatient}
-        patient={editingPatient}
-      />
+      {isModalOpen && (
+        <Suspense fallback={null}>
+          <PatientModal
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            onSave={handleSavePatient}
+            patient={editingPatient}
+          />
+        </Suspense>
+      )}
     </div>
   );
 };

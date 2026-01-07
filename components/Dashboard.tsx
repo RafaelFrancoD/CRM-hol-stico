@@ -1,6 +1,6 @@
 import React from 'react';
 import { Patient, Transaction } from '../types';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line, CartesianGrid } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { Users, DollarSign, Calendar, TrendingUp } from 'lucide-react';
 
 interface DashboardProps {
@@ -15,13 +15,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ patients, transactions }) 
   const netProfit = totalIncome - totalExpense;
 
   const chartData = [
-    { name: 'Jan', income: 4000, expense: 2400 },
-    { name: 'Fev', income: 3000, expense: 1398 },
-    { name: 'Mar', income: 2000, expense: 9800 },
-    { name: 'Abr', income: 2780, expense: 3908 },
-    { name: 'Mai', income: 1890, expense: 4800 },
-    { name: 'Jun', income: 2390, expense: 3800 },
-    { name: 'Jul', income: 3490, expense: 4300 },
+    { name: 'Jan', income: 0, expense: 0 },
+    { name: 'Fev', income: 0, expense: 0 },
+    { name: 'Mar', income: 0, expense: 0 },
+    { name: 'Abr', income: 0, expense: 0 },
+    { name: 'Mai', income: 0, expense: 0 },
+    { name: 'Jun', income: 0, expense: 0 },
+    { name: 'Jul', income: 0, expense: 0 },
   ];
 
   return (
@@ -32,10 +32,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ patients, transactions }) 
         <StatCard icon={<Users className="text-blue-500" />} title="Pacientes Ativos" value={activePatients} color="bg-blue-50" />
         <StatCard icon={<DollarSign className="text-emerald-500" />} title="Receita Mensal" value={`R$ ${totalIncome.toFixed(2)}`} color="bg-emerald-50" />
         <StatCard icon={<TrendingUp className="text-purple-500" />} title="Lucro Líquido" value={`R$ ${netProfit.toFixed(2)}`} color="bg-purple-50" />
-        <StatCard icon={<Calendar className="text-orange-500" />} title="Sessões Hoje" value="4" color="bg-orange-50" />
+        <StatCard icon={<Calendar className="text-orange-500" />} title="Sessões Hoje" value="0" color="bg-orange-50" />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6">
         <div className="bg-white p-4 md:p-6 rounded-xl shadow-sm border border-slate-100">
           <h3 className="text-lg font-semibold mb-4">Fluxo de Caixa</h3>
           <div className="h-64">
@@ -48,21 +48,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ patients, transactions }) 
                 <Bar dataKey="income" fill="#10b981" radius={[4, 4, 0, 0]} name="Receita" />
                 <Bar dataKey="expense" fill="#ef4444" radius={[4, 4, 0, 0]} name="Despesa" />
               </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        <div className="bg-white p-4 md:p-6 rounded-xl shadow-sm border border-slate-100">
-          <h3 className="text-lg font-semibold mb-4">Crescimento de Pacientes</h3>
-           <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} fontSize={12} />
-                <YAxis axisLine={false} tickLine={false} fontSize={12} />
-                <Tooltip />
-                <Line type="monotone" dataKey="income" stroke="#8b5cf6" strokeWidth={3} dot={{r: 4}} name="Novos Pacientes" />
-              </LineChart>
             </ResponsiveContainer>
           </div>
         </div>
