@@ -1,8 +1,7 @@
 // services/apiService.ts
 
-// Com o proxy do Vite configurado, não precisamos mais da URL base no cliente.
-// Em produção, um setup de reverse proxy (ex: Nginx, Vercel rewrites) fará o mesmo.
-export const API_BASE_URL = ''; 
+// Em produção, usa a variável de ambiente. Em desenvolvimento, usa proxy vazio.
+export const API_BASE_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_TARGET || ''; 
 
 /**
  * Uma função helper para realizar chamadas à API com JSON, tratando erros comuns.
