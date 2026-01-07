@@ -1,7 +1,7 @@
 // services/apiService.ts
 
 // Em produção, usa a variável de ambiente. Em desenvolvimento, usa proxy vazio.
-export const API_BASE_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_TARGET || ''; 
+export const API_BASE_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_TARGET || '';
 
 /**
  * Uma função helper para realizar chamadas à API com JSON, tratando erros comuns.
@@ -13,10 +13,20 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
   const url = `${API_BASE_URL}${endpoint}`;
 
   options.credentials = 'include';
-  
+
+  // Adiciona token do localStorage no header Authorization (funciona cross-domain)
+  const token = localStorage.getItem('auth_token');
+
   if (!(options.body instanceof FormData)) {
     options.headers = {
       'Content-Type': 'application/json',
+      ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+      ...options.headers,
+    };
+  } else if (token) {
+    // Para FormData, adiciona apenas o Authorization header
+    options.headers = {
+      'Authorization': `Bearer ${token}`,
       ...options.headers,
     };
   }
@@ -42,11 +52,17 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
 
 export const apiService = {
   // --- Auth ---
-  login: (email: string, password: string) =>
-    fetchApi<{ ok: boolean }>('/api/auth/login', {
+  login: async (email: string, password: string) => {
+    const response = await fetchApi<{ ok: boolean; token?: string }>('/api/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
-    }),
+    });
+    // Salva token no localStorage (funciona cross-domain)
+    if (response.token) {
+      localStorage.setItem('auth_token', response.token);
+    }
+    return response;
+  },
 
   register: (email: string, password: string) =>
     fetchApi<{ ok: boolean }>('/api/auth/register', {
@@ -54,10 +70,13 @@ export const apiService = {
       body: JSON.stringify({ email, password }),
     }),
 
-  logout: () =>
-    fetchApi<{ ok: boolean }>('/api/auth/logout', {
+  logout: async () => {
+    // Remove token do localStorage
+    localStorage.removeItem('auth_token');
+    return fetchApi<{ ok: boolean }>('/api/auth/logout', {
       method: 'POST',
-    }),
+    });
+  },
 
   getCurrentUser: () =>
     fetchApi<{ email: string; created_at: string }>('/api/auth/me'),

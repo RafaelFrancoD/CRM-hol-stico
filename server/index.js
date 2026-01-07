@@ -190,8 +190,18 @@ app.get('/api/health', (req, res) => {
 });
 
 function authMiddleware(req, res, next) {
-  const token = req.cookies && req.cookies.token;
+  // Aceita token de cookies OU do header Authorization (para funcionar cross-domain)
+  let token = req.cookies && req.cookies.token;
+
+  if (!token && req.headers.authorization) {
+    const authHeader = req.headers.authorization;
+    if (authHeader.startsWith('Bearer ')) {
+      token = authHeader.substring(7);
+    }
+  }
+
   if (!token) return res.status(401).json({ error: 'Unauthorized' });
+
   try {
     const payload = jwt.verify(token, process.env.JWT_SECRET || 'dev_secret');
     req.user = payload;
@@ -288,11 +298,12 @@ app.post('/api/auth/login',
         { expiresIn: '8h', issuer: 'mirelli-crm' }
       );
 
+      // Envia cookie (funciona em localhost)
       res.cookie('token', token, {
-        httpOnly: true, // Previne acesso via JavaScript (XSS)
-        secure: process.env.NODE_ENV === 'production', // HTTPS apenas em produção
-        sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax', // Proteção CSRF
-        maxAge: 8 * 60 * 60 * 1000, // 8 horas
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+        maxAge: 8 * 60 * 60 * 1000,
         domain: process.env.COOKIE_DOMAIN || undefined
       });
 
@@ -300,7 +311,8 @@ app.post('/api/auth/login',
         console.log('✅ Login bem-sucedido para:', email);
       }
 
-      return res.json({ ok: true, message: 'Login realizado com sucesso' });
+      // IMPORTANTE: Envia token no body também (funciona cross-domain)
+      return res.json({ ok: true, message: 'Login realizado com sucesso', token });
     } catch (err) {
       console.error('❌ Erro no login:', err.message);
       return res.status(500).json({ error: 'Erro interno do servidor' });
