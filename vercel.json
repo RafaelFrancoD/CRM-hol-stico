@@ -12,7 +12,7 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "https://SEU_BACKEND_URL/api/$1"
+      "dest": "https://mirelli-crm-backend.onrender.com/api/$1"
     },
     {
       "src": "/(.*)",

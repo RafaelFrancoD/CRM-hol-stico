@@ -277,9 +277,48 @@ export const CalendarView: React.FC = () => {
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                       <div className="sm:col-span-1"><label className="block text-sm font-medium text-slate-700 mb-1">Data</label><div className="relative"><input type="date" required className="w-full px-3 py-2 bg-white text-slate-900 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" value={newAppt.date} onChange={e => setNewAppt({...newAppt, date: e.target.value})} /></div></div>
                       <div className="sm:col-span-1"><label className="block text-sm font-medium text-slate-700 mb-1">Horário</label><div className="relative"><Clock size={14} className="absolute left-2.5 top-3 text-slate-400 pointer-events-none" /><input type="time" required className="w-full pl-8 pr-3 py-2 bg-white text-slate-900 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" value={newAppt.time} onChange={e => setNewAppt({...newAppt, time: e.target.value})} /></div></div>
-                      <div className="sm:col-span-1"><label className="block text-sm font-medium text-slate-700 mb-1">Valor Sessão</label><div className="relative"><input type="number" required min="0" className="w-full px-3 py-2 pl-8 bg-white text-slate-900 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" value={newAppt.value} onChange={e => setNewAppt({...newAppt, value: parseFloat(e.target.value)})} /><DollarSign className="absolute left-2.5 top-2.5 text-slate-400 pointer-events-none" size={14} /></div></div>
+                      <div className="sm:col-span-1"><label className="block text-sm font-medium text-slate-700 mb-1">Valor Sessão</label><div className="relative"><input type="number" required min="0" step="0.01" className="w-full px-3 py-2 pl-8 bg-white text-slate-900 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" value={newAppt.value} onChange={e => setNewAppt({...newAppt, value: parseFloat(e.target.value)})} /><DollarSign className="absolute left-2.5 top-2.5 text-slate-400 pointer-events-none" size={14} /></div></div>
                   </div>
-                  {!newAppt.id && (<div className="bg-slate-50 p-4 rounded-lg border border-slate-200 space-y-4">...</div>)}
+                  {!newAppt.id && (
+                    <div className="bg-slate-50 p-4 rounded-lg border border-slate-200 space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-2 flex items-center gap-2"><Repeat size={16} /> Recorrência</label>
+                        <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+                          {(['none', 'daily', 'weekly', 'biweekly', 'monthly'] as const).map(r => (
+                            <button key={r} type="button" onClick={() => setNewAppt({...newAppt, recurrence: r})}
+                              className={`py-1.5 px-2 rounded-lg text-xs font-medium border transition-colors ${newAppt.recurrence === r ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white text-slate-600 border-slate-300 hover:border-emerald-400'}`}>
+                              {r === 'none' ? 'Sem rep.' : r === 'daily' ? 'Diário' : r === 'weekly' ? 'Semanal' : r === 'biweekly' ? 'Quinzenal' : 'Mensal'}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      {newAppt.recurrence !== 'none' && (
+                        <div className="space-y-3 animate-in fade-in">
+                          <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-2">Terminar após</label>
+                            <div className="flex flex-wrap gap-2">
+                              <button type="button" onClick={() => setNewAppt({...newAppt, recurrenceEndMode: 'count'})}
+                                className={`flex items-center gap-1.5 py-1.5 px-3 rounded-lg text-xs font-medium border transition-colors ${newAppt.recurrenceEndMode === 'count' ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white text-slate-600 border-slate-300 hover:border-emerald-400'}`}>
+                                <Hash size={12} /> Número de sessões
+                              </button>
+                              <button type="button" onClick={() => setNewAppt({...newAppt, recurrenceEndMode: 'never'})}
+                                className={`flex items-center gap-1.5 py-1.5 px-3 rounded-lg text-xs font-medium border transition-colors ${newAppt.recurrenceEndMode === 'never' ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white text-slate-600 border-slate-300 hover:border-emerald-400'}`}>
+                                <InfinityIcon size={12} /> Indefinido (12 sessões)
+                              </button>
+                            </div>
+                          </div>
+                          {newAppt.recurrenceEndMode === 'count' && (
+                            <div>
+                              <label className="block text-sm font-medium text-slate-700 mb-1">Quantidade de sessões</label>
+                              <input type="number" min="1" max="52" value={newAppt.recurrenceCount}
+                                onChange={e => setNewAppt({...newAppt, recurrenceCount: parseInt(e.target.value) || 1})}
+                                className="w-24 px-3 py-2 bg-white text-slate-900 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" />
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
                   <div className="space-y-3">
                     <div className="flex items-center gap-2 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50" onClick={() => setNewAppt({...newAppt, confirmed: !newAppt.confirmed})}><div className={`w-5 h-5 rounded border flex items-center justify-center ${newAppt.confirmed ? 'bg-emerald-500 border-emerald-500' : 'bg-white border-slate-300'}`}>{newAppt.confirmed && <CheckCircle2 size={14} className="text-white" />}</div><span className="text-sm text-slate-700">Paciente confirmou presença (gera cobrança)</span></div>
                     {newAppt.confirmed && (
